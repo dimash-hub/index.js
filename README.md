@@ -8,7 +8,7 @@ app.get("/", (_req, res) => res.send("JEETS Whale Bot is alive on Render!"));
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 function sendWhaleSignal(msg) {
   if (!TELEGRAM_TOKEN || !CHAT_ID) return;
