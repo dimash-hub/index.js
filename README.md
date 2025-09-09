@@ -44,7 +44,15 @@ function sendWhaleSignal(msg) {
 setInterval(() => {
   sendWhaleSignal("🐋 Тест: бот жив и JEETS сигнал работает!");
 }, 30000);
-
+app.get("/status", async (_req, res) => {
+  try {
+    const balance = await getJeetsBalanceUi(process.env.WHALE_ADDRESS, process.env.JEETS_TOKEN_ADDRESS);
+    const price = await getJeetsPriceUsd(process.env.JEETS_TOKEN_ADDRESS);
+    res.json({ whale: process.env.WHALE_ADDRESS, jeetsMint: process.env.JEETS_TOKEN_ADDRESS, balance, price, usdValue: balance * price });
+  } catch (e) {
+    res.status(500).json({ error: String(e?.message || e) });
+  }
+});
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 // === ВРЕМЕННЫЙ: список всех SPL-токенов кита (помогает найти, видит ли бот JEETS вообще)
 app.get("/debug/tokens", async (_req, res) => {
