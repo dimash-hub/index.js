@@ -5,7 +5,33 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (_req, res) => res.send("JEETS Whale Bot is alive on Render!"));
-
+// === ВРЕМЕННЫЙ DEBUG: список всех токенов кита ===
+app.get("/debug/tokens", async (_req, res) => {
+  try {
+    const body = {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getParsedTokenAccountsByOwner",
+      params: [
+        process.env.WHALE_ADDRESS,
+        { programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+        { encoding: "jsonParsed" }
+      ],
+    };
+    const { data } = await axios.post(process.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com", body, { timeout: 15000 });
+    const accounts = data?.result?.value || [];
+    const list = accounts.map(acc => {
+      const info = acc?.account?.data?.parsed?.info;
+      return {
+        mint: info?.mint,
+        uiAmount: info?.tokenAmount?.uiAmount
+      };
+    });
+    res.json({ whale: process.env.WHALE_ADDRESS, count: list.length, tokens: list });
+  } catch (e) {
+    res.status(500).json({ error: String(e?.message || e) });
+  }
+});
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
